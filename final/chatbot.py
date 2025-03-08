@@ -41,26 +41,25 @@ RESPONSE GUIDELINES:
 Your focus is on helping the user feel confident and enthusiastic about learning Kannada."""
 
     def download_from_dropbox(self, file_url, save_as):
-    """Download a file from Dropbox and save it locally."""
-    try:
-        direct_url = file_url.replace("www.dropbox.com", "dl.dropboxusercontent.com")
-        response = requests.get(direct_url)
+        """Download a file from Dropbox and save it locally."""
+        try:
+            direct_url = file_url.replace("www.dropbox.com", "dl.dropboxusercontent.com")
+            response = requests.get(direct_url)
 
-        # Debugging output
-        print(f"Downloading from: {direct_url}")
-        print(f"Response Code: {response.status_code}")
-        print(f"Response Content: {response.text[:200]}")  # Show first 200 chars for errors
+            # Debugging output
+            print(f"Downloading from: {direct_url}")
+            print(f"Response Code: {response.status_code}")
+            print(f"Response Content: {response.text[:200]}")  # Show first 200 chars for errors
 
-        if response.status_code != 200:
-            raise ValueError(f"Failed to download file from {file_url}")
+            if response.status_code != 200:
+                raise ValueError(f"Failed to download file from {file_url}")
 
-        with open(save_as, "w", encoding="utf-8") as f:
-            f.write(response.text)
+            with open(save_as, "w", encoding="utf-8") as f:
+                f.write(response.text)
 
-        return save_as
-    except Exception as e:
-        raise RuntimeError(f"Error downloading file: {e}")
-
+            return save_as
+        except Exception as e:
+            raise RuntimeError(f"Error downloading file: {e}")
 
     def load_parallel_corpus(self, en_file_path, kn_file_path):
         """Load the English-Kannada parallel corpus."""
