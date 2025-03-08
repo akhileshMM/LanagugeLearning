@@ -51,20 +51,29 @@ Your focus is on helping the user feel confident and enthusiastic about learning
         except Exception as e:
             raise RuntimeError(f"Error downloading file: {e}")
 
-    def load_parallel_corpus(self, en_file_path, kn_file_path):
-        try:
-            with open(en_file_path, "r", encoding="utf-8") as en_file:
-                english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
+   def load_parallel_corpus(self, en_file_path, kn_file_path):
+    try:
+        print(f"Loading corpus from: {en_file_path}, {kn_file_path}")  # Debugging Line
+        
+        if not os.path.exists(en_file_path) or not os.path.exists(kn_file_path):
+            raise FileNotFoundError(f"One or both files not found: {en_file_path}, {kn_file_path}")
 
-            with open(kn_file_path, "r", encoding="utf-8") as kn_file:
-                kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
+        with open(en_file_path, "r", encoding="utf-8") as en_file:
+            english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
 
-            if len(english_lines) != len(kannada_lines):
-                raise ValueError("Line count mismatch in corpus files!")
+        with open(kn_file_path, "r", encoding="utf-8") as kn_file:
+            kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
 
-            return list(zip(english_lines, kannada_lines))
-        except Exception as e:
-            raise RuntimeError(f"Error loading corpus: {e}")
+        if len(english_lines) != len(kannada_lines):
+            raise ValueError(f"Line count mismatch in corpus files! English: {len(english_lines)}, Kannada: {len(kannada_lines)}")
+
+        print("Successfully loaded corpus!")  # Debugging Line
+        return list(zip(english_lines, kannada_lines))
+
+    except Exception as e:
+        print(f"Error loading corpus: {e}")  # Debugging Line
+        raise RuntimeError(f"Error loading corpus: {e}")
+
 
     def generate_conversational_response(self, user_input):
         try:
