@@ -1,13 +1,14 @@
 import anthropic
-import streamlit as st  # Import Streamlit for secrets
+import streamlit as st
+import os
 
 class LightweightSemanticLanguageLearningAssistant:
-    def __init__(self, english_file, kannada_file):  
-        # Load API key securely from Streamlit Secrets
-        api_key = st.secrets["ANTHROPIC_API_KEY"]
+    def __init__(self, english_file, kannada_file):
+        # Load API key securely (compatible with both Streamlit & CLI)
+        api_key = os.environ.get("ANTHROPIC_API_KEY") or st.secrets.get("ANTHROPIC_API_KEY")
 
         if not api_key:
-            raise ValueError("API key is missing! Set it in .streamlit/secrets.toml or Streamlit Cloud Secrets.")
+            raise ValueError("API key is missing! Set it in environment variables or Streamlit secrets.")
 
         # Claude Client
         self.client = anthropic.Anthropic(api_key=api_key)
@@ -36,13 +37,17 @@ RESPONSE GUIDELINES:
 Your focus is on helping the user feel confident and enthusiastic about learning Kannada."""
 
     def load_parallel_corpus(self, en_file, kn_file):
-        with open(en_file, 'r', encoding='utf-8') as en, \
-             open(kn_file, 'r', encoding='utf-8') as kn:
-            english_lines = [line.strip() for line in en.readlines() if line.strip()]
-            kannada_lines = [line.strip() for line in kn.readlines() if line.strip()]
+        try:
+            with open(en_file, 'r', encoding='utf-8') as en, open(kn_file, 'r', encoding='utf-8') as kn:
+                english_lines = [line.strip() for line in en.readlines() if line.strip()]
+                kannada_lines = [line.strip() for line in kn.readlines() if line.strip()]
 
-            assert len(english_lines) == len(kannada_lines), "Line count mismatch"
-            return list(zip(english_lines, kannada_lines))
+                if len(english_lines) != len(kannada_lines):
+                    raise ValueError("Line count mismatch in corpus files!")
+
+                return list(zip(english_lines, kannada_lines))
+        except FileNotFoundError:
+            raise FileNotFoundError("Corpus file not found. Make sure the files exist locally.")
 
     def generate_conversational_response(self, user_input):
         try:
@@ -50,23 +55,20 @@ Your focus is on helping the user feel confident and enthusiastic about learning
                 model="claude-3-haiku-20240307",
                 max_tokens=1024,
                 messages=[
-                    {
-                        "role": "user",
-                        "content": f"""I want to learn how to communicate in a specific scenario. Here's the context: {user_input}  
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": f"I want to learn how to communicate in a specific scenario. Here's the context: {user_input}  
                         Please provide:
                         1. A practical conversation snippet in Kannada
                         2. English transliteration of the Kannada text
                         3. Clear English translation
                         4. Detailed pronunciation guide using English phonetics
-                        5. Cultural or contextual tips for using this phrase"""
-                    }
-                ],
-                system=self.system_prompt
+                        5. Cultural or contextual tips for using this phrase"}
+                ]
             )
 
             return completion.content[0].text
         except Exception as e:
-            return f"Oops! Something went wrong: {e}"
+            return f"Oops! Something went wrong. Please try again later."
 
     def chat_with_dhwani(self):
         print("Welcome to Dhwani! Let's learn Kannada together. Type 'exit' to end the chat.\n")
@@ -86,5 +88,5 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    assistant = LightweightSemanticLanguageLearningAssistant('https://drive.google.com/file/d/1CfEjk00-gQsPfjaPtDRgzC47jV1dgvqc/view?usp=drive_link', 'https://drive.google.com/file/d/1vD8zNxF5eG6NvWwkvirymPEHQGbbwPss/view?usp=drive_link')
+    assistant = LightweightSemanticLanguageLearningAssistant('kannada_en.txt', 'kannada_kn.txt')  # Use local files
     assistant.chat_with_dhwani()
