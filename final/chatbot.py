@@ -111,7 +111,7 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    english_file_url = "https://www.dropbox.com/scl/fi/2cbcaonf616sm5wjrw60l/train.en?rlkey=hjqex9ctrc38el4f21cirh8hf&st=okbo360c&dl=0"
-    kannada_file_url = "https://www.dropbox.com/scl/fi/ypb9oiw639w6fkkswzqic/train.kn?rlkey=wbop1ro83zqhrkrvd4ooso1ki&st=y1iuok59&dl=0"
+    english_file_url = "https://www.dropbox.com/scl/fi/2cbcaonf616sm5wjrw60l/train.en?rlkey=hjqex9ctrc38el4f21cirh8hf&st=4904xh63&dl=0"
+    kannada_file_url = "https://www.dropbox.com/scl/fi/ypb9oiw639w6fkkswzqic/train.kn?rlkey=wbop1ro83zqhrkrvd4ooso1ki&st=tm9cozhc&dl=0"
     assistant = LightweightSemanticLanguageLearningAssistant(english_file_url, kannada_file_url)
     assistant.chat_with_dhwani()
