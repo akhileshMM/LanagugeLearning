@@ -51,20 +51,21 @@ Your focus is on helping the user feel confident and enthusiastic about learning
         except Exception as e:
             raise RuntimeError(f"Error downloading file: {e}")
 
-    def load_parallel_corpus(self, en_file_id, kn_file_id):
-        try:
-            english_text = self.download_from_drive(en_file_id)
-            kannada_text = self.download_from_drive(kn_file_id)
+    def load_parallel_corpus(self, en_file_path, kn_file_path):
+    try:
+        with open(en_file_path, "r", encoding="utf-8") as en_file:
+            english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
 
-            english_lines = [line.strip() for line in StringIO(english_text).readlines() if line.strip()]
-            kannada_lines = [line.strip() for line in StringIO(kannada_text).readlines() if line.strip()]
+        with open(kn_file_path, "r", encoding="utf-8") as kn_file:
+            kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
 
-            if len(english_lines) != len(kannada_lines):
-                raise ValueError("Line count mismatch in corpus files!")
+        if len(english_lines) != len(kannada_lines):
+            raise ValueError("Line count mismatch in corpus files!")
 
-            return list(zip(english_lines, kannada_lines))
-        except Exception as e:
-            raise RuntimeError(f"Error loading corpus: {e}")
+        return list(zip(english_lines, kannada_lines))
+    except Exception as e:
+        raise RuntimeError(f"Error loading corpus: {e}")
+
 
     def generate_conversational_response(self, user_input):
         try:
