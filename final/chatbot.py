@@ -86,5 +86,5 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    assistant = LightweightSemanticLanguageLearningAssistant('train.en', 'train.kn')
+    assistant = LightweightSemanticLanguageLearningAssistant('https://drive.google.com/file/d/1CfEjk00-gQsPfjaPtDRgzC47jV1dgvqc/view?usp=drive_link', 'https://drive.google.com/file/d/1vD8zNxF5eG6NvWwkvirymPEHQGbbwPss/view?usp=drive_link')
     assistant.chat_with_dhwani()
