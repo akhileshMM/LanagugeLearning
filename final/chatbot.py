@@ -5,7 +5,7 @@ import requests
 from io import StringIO
 
 class LightweightSemanticLanguageLearningAssistant:
-    def __init__(self, english_file_url, kannada_file_url):
+    def __init__(self, english_file_id, kannada_file_id):
         # Load API key securely (compatible with both Streamlit & CLI)
         api_key = os.environ.get("ANTHROPIC_API_KEY") or st.secrets.get("ANTHROPIC_API_KEY")
 
@@ -16,7 +16,7 @@ class LightweightSemanticLanguageLearningAssistant:
         self.client = anthropic.Anthropic(api_key=api_key)
 
         # Load Parallel Corpus
-        self.parallel_corpus = self.load_parallel_corpus(english_file_url, kannada_file_url)
+        self.parallel_corpus = self.load_parallel_corpus(english_file_id, kannada_file_id)
 
         # System Prompt
         self.system_prompt = """You are Dhwani, an AI assistant designed to help users learn Kannada in a practical and conversational manner. Your role is to assist users with:
@@ -38,16 +38,26 @@ RESPONSE GUIDELINES:
 
 Your focus is on helping the user feel confident and enthusiastic about learning Kannada."""
 
-    def load_parallel_corpus(self, en_file_url, kn_file_url):
+    def download_from_drive(self, file_id):
+        """Download a file from Google Drive using its file ID and return the content as text."""
         try:
-            en_response = requests.get(en_file_url)
-            kn_response = requests.get(kn_file_url)
-            
-            if en_response.status_code != 200 or kn_response.status_code != 200:
-                raise ValueError("Failed to download corpus files. Check the provided Google Drive links.")
+            url = f"https://drive.google.com/uc?export=download&id={file_id}"
+            response = requests.get(url)
 
-            english_lines = [line.strip() for line in StringIO(en_response.text).readlines() if line.strip()]
-            kannada_lines = [line.strip() for line in StringIO(kn_response.text).readlines() if line.strip()]
+            if response.status_code != 200:
+                raise ValueError(f"Failed to download file {file_id}. Check the provided Google Drive link.")
+
+            return response.text
+        except Exception as e:
+            raise RuntimeError(f"Error downloading file: {e}")
+
+    def load_parallel_corpus(self, en_file_id, kn_file_id):
+        try:
+            english_text = self.download_from_drive(en_file_id)
+            kannada_text = self.download_from_drive(kn_file_id)
+
+            english_lines = [line.strip() for line in StringIO(english_text).readlines() if line.strip()]
+            kannada_lines = [line.strip() for line in StringIO(kannada_text).readlines() if line.strip()]
 
             if len(english_lines) != len(kannada_lines):
                 raise ValueError("Line count mismatch in corpus files!")
@@ -89,7 +99,7 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    english_file_url = "https://drive.google.com/file/d/1CfEjk00-gQsPfjaPtDRgzC47jV1dgvqc/view?usp=sharing"
-    kannada_file_url = "https://drive.google.com/file/d/1vD8zNxF5eG6NvWwkvirymPEHQGbbwPss/view?usp=sharing"
-    assistant = LightweightSemanticLanguageLearningAssistant(english_file_url, kannada_file_url)
+    english_file_id = "1CfEjk00-gQsPfjaPtDRgzC47jV1dgvqc"  # Extracted from Google Drive link
+    kannada_file_id = "1vD8zNxF5eG6NvWwkvirymPEHQGbbwPss"  # Extracted from Google Drive link
+    assistant = LightweightSemanticLanguageLearningAssistant(english_file_id, kannada_file_id)
     assistant.chat_with_dhwani()
