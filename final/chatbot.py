@@ -89,7 +89,7 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    english_file_url = "YOUR_GOOGLE_DRIVE_ENGLISH_FILE_URL"
-    kannada_file_url = "YOUR_GOOGLE_DRIVE_KANNADA_FILE_URL"
+    english_file_url = "https://drive.google.com/file/d/1CfEjk00-gQsPfjaPtDRgzC47jV1dgvqc/view?usp=drive_link"
+    kannada_file_url = "https://drive.google.com/file/d/1vD8zNxF5eG6NvWwkvirymPEHQGbbwPss/view?usp=drive_link"
     assistant = LightweightSemanticLanguageLearningAssistant(english_file_url, kannada_file_url)
     assistant.chat_with_dhwani()
