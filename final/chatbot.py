@@ -50,28 +50,31 @@ Your focus is on helping the user feel confident and enthusiastic about learning
         except Exception as e:
             raise RuntimeError(f"Error downloading file: {e}")
 
-    def load_parallel_corpus(self, en_file_url, kn_file_url):
-        """Load English and Kannada parallel text corpus from Dropbox links."""
-        try:
-            print(f"Loading corpus from: {en_file_url}, {kn_file_url}")  # Debugging Line
+   def load_parallel_corpus(self, en_file_path, kn_file_path):
+    try:
+        print(f"Loading corpus from: {en_file_path}, {kn_file_path}")  # Debugging Line
+        print(f"Current Directory: {os.getcwd()}")  # Debugging Line
+        print(f"Files in Directory: {os.listdir()}")  # Debugging Line
 
-            # Download text data from Dropbox
-            english_text = self.download_from_dropbox(en_file_url)
-            kannada_text = self.download_from_dropbox(kn_file_url)
+        if not os.path.exists(en_file_path) or not os.path.exists(kn_file_path):
+            raise FileNotFoundError(f"One or both files not found: {en_file_path}, {kn_file_path}")
 
-            # Split text into lines and clean
-            english_lines = [line.strip() for line in english_text.split("\n") if line.strip()]
-            kannada_lines = [line.strip() for line in kannada_text.split("\n") if line.strip()]
+        with open(en_file_path, "r", encoding="utf-8") as en_file:
+            english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
 
-            if len(english_lines) != len(kannada_lines):
-                raise ValueError(f"Line count mismatch! English: {len(english_lines)}, Kannada: {len(kannada_lines)}")
+        with open(kn_file_path, "r", encoding="utf-8") as kn_file:
+            kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
 
-            print("Successfully loaded corpus!")  # Debugging Line
-            return list(zip(english_lines, kannada_lines))
+        if len(english_lines) != len(kannada_lines):
+            raise ValueError(f"Line count mismatch in corpus files! English: {len(english_lines)}, Kannada: {len(kannada_lines)}")
 
-        except Exception as e:
-            print(f"Error loading corpus: {e}")  # Debugging Line
-            raise RuntimeError(f"Error loading corpus: {e}")
+        print("Successfully loaded corpus!")  # Debugging Line
+        return list(zip(english_lines, kannada_lines))
+
+    except Exception as e:
+        print(f"Error loading corpus: {e}")  # Debugging Line
+        raise RuntimeError(f"Error loading corpus: {e}")
+
 
     def generate_conversational_response(self, user_input):
         try:
