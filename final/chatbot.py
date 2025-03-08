@@ -13,8 +13,12 @@ class LightweightSemanticLanguageLearningAssistant:
         # Claude Client
         self.client = anthropic.Anthropic(api_key=api_key)
 
+        # Download Files from Dropbox
+        en_file_path = self.download_from_dropbox(english_file_url, "train.en")
+        kn_file_path = self.download_from_dropbox(kannada_file_url, "train.kn")
+
         # Load Parallel Corpus
-        self.parallel_corpus = self.load_parallel_corpus(english_file_url, kannada_file_url)
+        self.parallel_corpus = self.load_parallel_corpus(en_file_path, kn_file_path)
 
         # System Prompt
         self.system_prompt = """You are Dhwani, an AI assistant designed to help users learn Kannada in a practical and conversational manner. Your role is to assist users with:
@@ -36,45 +40,47 @@ RESPONSE GUIDELINES:
 
 Your focus is on helping the user feel confident and enthusiastic about learning Kannada."""
 
-    def download_from_dropbox(self, file_url):
-        """Download a file from Dropbox and return its content as text."""
+    def download_from_dropbox(self, file_url, filename):
+        """Download a file from Dropbox and save it locally."""
         try:
-            # Convert Dropbox shareable link to direct download link
             direct_url = file_url.replace("www.dropbox.com", "dl.dropboxusercontent.com")
-
             response = requests.get(direct_url)
+
             if response.status_code != 200:
                 raise ValueError(f"Failed to download file from {file_url}")
 
-            return response.text
+            # Save the file locally
+            local_path = f"/tmp/{filename}"
+            with open(local_path, "w", encoding="utf-8") as f:
+                f.write(response.text)
+
+            return local_path  # Return the local file path
         except Exception as e:
             raise RuntimeError(f"Error downloading file: {e}")
 
-   def load_parallel_corpus(self, en_file_path, kn_file_path):
-    try:
-        print(f"Loading corpus from: {en_file_path}, {kn_file_path}")  # Debugging Line
-        print(f"Current Directory: {os.getcwd()}")  # Debugging Line
-        print(f"Files in Directory: {os.listdir()}")  # Debugging Line
+    def load_parallel_corpus(self, en_file_path, kn_file_path):
+        """Load the English-Kannada parallel corpus."""
+        try:
+            print(f"Loading corpus from: {en_file_path}, {kn_file_path}")  # Debugging Line
 
-        if not os.path.exists(en_file_path) or not os.path.exists(kn_file_path):
-            raise FileNotFoundError(f"One or both files not found: {en_file_path}, {kn_file_path}")
+            if not os.path.exists(en_file_path) or not os.path.exists(kn_file_path):
+                raise FileNotFoundError(f"One or both files not found: {en_file_path}, {kn_file_path}")
 
-        with open(en_file_path, "r", encoding="utf-8") as en_file:
-            english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
+            with open(en_file_path, "r", encoding="utf-8") as en_file:
+                english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
 
-        with open(kn_file_path, "r", encoding="utf-8") as kn_file:
-            kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
+            with open(kn_file_path, "r", encoding="utf-8") as kn_file:
+                kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
 
-        if len(english_lines) != len(kannada_lines):
-            raise ValueError(f"Line count mismatch in corpus files! English: {len(english_lines)}, Kannada: {len(kannada_lines)}")
+            if len(english_lines) != len(kannada_lines):
+                raise ValueError(f"Line count mismatch in corpus files! English: {len(english_lines)}, Kannada: {len(kannada_lines)}")
 
-        print("Successfully loaded corpus!")  # Debugging Line
-        return list(zip(english_lines, kannada_lines))
+            print("Successfully loaded corpus!")  # Debugging Line
+            return list(zip(english_lines, kannada_lines))
 
-    except Exception as e:
-        print(f"Error loading corpus: {e}")  # Debugging Line
-        raise RuntimeError(f"Error loading corpus: {e}")
-
+        except Exception as e:
+            print(f"Error loading corpus: {e}")  # Debugging Line
+            raise RuntimeError(f"Error loading corpus: {e}")
 
     def generate_conversational_response(self, user_input):
         try:
@@ -105,7 +111,7 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
 # Run the chat function
 if __name__ == "__main__":
-    english_file_url = "https://www.dropbox.com/scl/fi/2cbcaonf616sm5wjrw60l/train.en?rlkey=hjqex9ctrc38el4f21cirh8hf&st=okbo360c&dl=0"  # Replace with actual Dropbox URL
-    kannada_file_url = "https://www.dropbox.com/scl/fi/ypb9oiw639w6fkkswzqic/train.kn?rlkey=wbop1ro83zqhrkrvd4ooso1ki&st=y1iuok59&dl=0"  # Replace with actual Dropbox URL
+    english_file_url = "https://www.dropbox.com/scl/fi/2cbcaonf616sm5wjrw60l/train.en?rlkey=hjqex9ctrc38el4f21cirh8hf&st=okbo360c&dl=0"
+    kannada_file_url = "https://www.dropbox.com/scl/fi/ypb9oiw639w6fkkswzqic/train.kn?rlkey=wbop1ro83zqhrkrvd4ooso1ki&st=y1iuok59&dl=0"
     assistant = LightweightSemanticLanguageLearningAssistant(english_file_url, kannada_file_url)
     assistant.chat_with_dhwani()
