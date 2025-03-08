@@ -52,20 +52,19 @@ Your focus is on helping the user feel confident and enthusiastic about learning
             raise RuntimeError(f"Error downloading file: {e}")
 
     def load_parallel_corpus(self, en_file_path, kn_file_path):
-    try:
-        with open(en_file_path, "r", encoding="utf-8") as en_file:
-            english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
+        try:
+            with open(en_file_path, "r", encoding="utf-8") as en_file:
+                english_lines = [line.strip() for line in en_file.readlines() if line.strip()]
 
-        with open(kn_file_path, "r", encoding="utf-8") as kn_file:
-            kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
+            with open(kn_file_path, "r", encoding="utf-8") as kn_file:
+                kannada_lines = [line.strip() for line in kn_file.readlines() if line.strip()]
 
-        if len(english_lines) != len(kannada_lines):
-            raise ValueError("Line count mismatch in corpus files!")
+            if len(english_lines) != len(kannada_lines):
+                raise ValueError("Line count mismatch in corpus files!")
 
-        return list(zip(english_lines, kannada_lines))
-    except Exception as e:
-        raise RuntimeError(f"Error loading corpus: {e}")
-
+            return list(zip(english_lines, kannada_lines))
+        except Exception as e:
+            raise RuntimeError(f"Error loading corpus: {e}")
 
     def generate_conversational_response(self, user_input):
         try:
@@ -80,7 +79,7 @@ Your focus is on helping the user feel confident and enthusiastic about learning
 
             return completion.content[0].text
         except Exception as e:
-            return f"Oops! Something went wrong. Please try again later."
+            return "Oops! Something went wrong. Please try again later."
 
     def chat_with_dhwani(self):
         print("Welcome to Dhwani! Let's learn Kannada together. Type 'exit' to end the chat.\n")
